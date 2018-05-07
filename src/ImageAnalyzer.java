@@ -1,6 +1,6 @@
-// This sample uses the Apache HTTP client library(org.apache.httpcomponents:httpclient:4.2.4)
-// and the org.json library (org.json:json:20170516).
-
+/**
+This program uses Apache HTTP Client 4.2.4, HTTP Core 4.2.1, org.json and apache commons logging libraries
+*/
 import java.net.URI;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -12,60 +12,43 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-public class Main
+public class ImageAnalyzer
 {
-    // **********************************************
-    // *** Update or verify the following values. ***
-    // **********************************************
-
-    // Replace the subscriptionKey string value with your valid subscription key.
+    // Replace the subscriptionKey string value with a valid subscription key.
     public static final String subscriptionKey = "da93971fbcd94567924f73e84fa4df3d";
-
-    // Replace or verify the region.
-    //
-    // You must use the same region in your REST API call as you used to obtain your subscription keys.
-    // For example, if you obtained your subscription keys from the westus region, replace
-    // "westcentralus" in the URI below with "westus".
-    //
-    // NOTE: Free trial subscription keys are generated in the westcentralus region, so if you are using
-    // a free trial subscription key, you should not need to change this region.
-    public static final String uriBase = "https://westeurope.api.cognitive.microsoft.com/vision/v1.0/analyze";
-
+    // Replace the rest end point specific to the region you have selected,
+    // This endpoint can be found in your service overview page
+    // Don't forget to append /analyze in the end if not available in your overview page
+    public static final String uriBase = "https://westeurope.api.cognitive.microsoft.com/vision/v2.0/analyze";
 
     public static void main(String[] args)
     {
-        HttpClient httpclient = new DefaultHttpClient();
-
+        HttpClient httpClient = new DefaultHttpClient();
         try
         {
-            URIBuilder builder = new URIBuilder(uriBase);
-
-            // Request parameters. All of them are optional.
-            builder.setParameter("visualFeatures", "Categories,Description,Color");
-            builder.setParameter("language", "en");
-
+            URIBuilder uriBuilder = new URIBuilder(uriBase);
+            // Set request parameters. These are optional params.
+            uriBuilder.setParameter("visualFeatures", "Categories,Description,Color");
+            uriBuilder.setParameter("language", "en");
             // Prepare the URI for the REST API call.
-            URI uri = builder.build();
+            URI uri = uriBuilder.build();
             HttpPost request = new HttpPost(uri);
-
             // Request headers.
             request.setHeader("Content-Type", "application/json");
             request.setHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
-
             // Request body.
             StringEntity reqEntity = new StringEntity("{\"url\":\"https://upload.wikimedia.org/wikipedia/commons/1/12/Broadway_and_Times_Square_by_night.jpg\"}");
             request.setEntity(reqEntity);
-
             // Execute the REST API call and get the response entity.
-            HttpResponse response = httpclient.execute(request);
-            HttpEntity entity = response.getEntity();
+            HttpResponse httpResponse = httpClient.execute(request);
+            HttpEntity httpEntity = httpResponse.getEntity();
 
-            if (entity != null)
+            if (httpEntity != null)
             {
                 // Format and display the JSON response.
-                String jsonString = EntityUtils.toString(entity);
+                String jsonString = EntityUtils.toString(httpEntity);
                 JSONObject json = new JSONObject(jsonString);
-                System.out.println("REST Response:\n");
+                System.out.println("Azure Computer Vision REST API Response:\n");
                 System.out.println(json.toString(2));
             }
         }
